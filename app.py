@@ -34,8 +34,8 @@ def insert_post():
     if request.method == 'POST':
         posts = get_db().posts
         post = {
-            'author': request.form['author'],
-            'text': request.form['text'],
+            'author': request.json['author'],
+            'text': request.json['text'],
             'date': datetime.datetime.utcnow()
         }
         post_id = posts.insert_one(post).inserted_id

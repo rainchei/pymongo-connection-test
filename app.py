@@ -1,7 +1,6 @@
 from flask import Flask, request
 from pymongo import MongoClient
 import datetime
-import pprint
 import os
 
 app = Flask(__name__)
@@ -25,7 +24,7 @@ def show_posts(author):
     posts = get_db().posts
     r = posts.find_one({'author': author})
     if r:
-        return pprint.pprint(r)
+        return r
     else:
         return 'Err: Author not found!'
 

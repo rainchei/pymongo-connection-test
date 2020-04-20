@@ -1,5 +1,6 @@
 from flask import Flask, request
 from pymongo import MongoClient
+from bson.json_util import dumps
 import datetime
 import os
 
@@ -15,20 +16,20 @@ def get_db():
     db = client[MONGO_DB_NAME]
     return db
 
-@app.route('/health')
+@app.route('/health', methods=['GET'])
 def health():
     return 'I am healthy!'
 
-@app.route('/show_posts/<author>')
+@app.route('/show_posts/<author>', methods=['GET'])
 def show_posts(author):
     posts = get_db().posts
     r = posts.find_one({'author': author})
     if r:
-        return r
+        return dumps(r)
     else:
         return 'Err: Author not found!'
 
-@app.route('/insert_post')
+@app.route('/insert_post', methods=['POST'])
 def insert_post():
     if request.method == 'POST':
         posts = get_db().posts

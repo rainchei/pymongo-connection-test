@@ -15,10 +15,11 @@ IDLE_TIME = os.getenv('IDLE_TIME')
 # Connection pool
 client = MongoClient(
             MONGO_URI,
-            maxPoolSize=2,
+            maxPoolSize=1,
             socketKeepAlive=False
             )
 db = client[MONGO_DB_NAME]
+posts = db.posts
 
 # Def of APIs
 @app.route('/health', methods=['GET'])
@@ -27,18 +28,22 @@ def health():
 
 @app.route('/show_posts/<author>', methods=['GET'])
 def show_posts(author):
-    posts = db.posts
     r = posts.find_one({'author': author})
     if r:
         time.sleep(int(IDLE_TIME))
-        return dumps(r)
+        post = {
+            'author': 'henlo',
+            'text': 'world',
+            'date': datetime.datetime.utcnow()
+        }
+        post_id = posts.insert_one(post).inserted_id
+        return 'Post Inserted: {}\n{}'.format(post_id, dumps(r))
     else:
         return 'Err: Author not found!'
 
 @app.route('/insert_post', methods=['POST'])
 def insert_post():
     if request.method == 'POST':
-        posts = db.posts
         post = {
             'author': request.json['author'],
             'text': request.json['text'],

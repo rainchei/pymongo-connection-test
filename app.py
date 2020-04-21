@@ -3,6 +3,7 @@ from pymongo import MongoClient
 from bson.json_util import dumps
 import datetime
 import os
+import time
 
 app = Flask(__name__)
 
@@ -25,6 +26,7 @@ def show_posts(author):
     posts = get_db().posts
     r = posts.find_one({'author': author})
     if r:
+        time.sleep(600)
         return dumps(r)
     else:
         return 'Err: Author not found!'

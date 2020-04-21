@@ -10,23 +10,27 @@ app = Flask(__name__)
 # Get environment variables
 MONGO_URI = os.getenv('MONGO_URI')
 MONGO_DB_NAME = os.getenv('MONGO_DB_NAME')
+IDLE_TIME = os.getenv('IDLE_TIME')
+
+# Connection pool
+client = MongoClient(
+            MONGO_URI,
+            maxPoolSize=2,
+            socketKeepAlive=False
+            )
+db = client[MONGO_DB_NAME]
 
 # Def of APIs
-def get_db():
-    client = MongoClient(MONGO_URI)
-    db = client[MONGO_DB_NAME]
-    return db
-
 @app.route('/health', methods=['GET'])
 def health():
     return 'I am healthy!'
 
 @app.route('/show_posts/<author>', methods=['GET'])
 def show_posts(author):
-    posts = get_db().posts
+    posts = db.posts
     r = posts.find_one({'author': author})
     if r:
-        time.sleep(600)
+        time.sleep(int(IDLE_TIME))
         return dumps(r)
     else:
         return 'Err: Author not found!'
@@ -34,7 +38,7 @@ def show_posts(author):
 @app.route('/insert_post', methods=['POST'])
 def insert_post():
     if request.method == 'POST':
-        posts = get_db().posts
+        posts = db.posts
         post = {
             'author': request.json['author'],
             'text': request.json['text'],
